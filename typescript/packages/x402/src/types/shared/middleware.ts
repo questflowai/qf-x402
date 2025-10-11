@@ -2,8 +2,8 @@ import { CreateHeaders } from "../../verify";
 import { Money } from "./money";
 import { Network } from "./network";
 import { Resource } from "./resource";
-import { LocalAccount } from "viem";
-import { SignerWallet } from "./evm";
+import { EvmSigner } from "./evm";
+import { HTTPRequestStructure } from "..";
 
 export type FacilitatorConfig = {
   url: Resource;
@@ -21,9 +21,18 @@ export type PaymentMiddlewareConfig = {
   description?: string;
   mimeType?: string;
   maxTimeoutSeconds?: number;
+  inputSchema?: Omit<HTTPRequestStructure, "type" | "method">;
   outputSchema?: object;
+  discoverable?: boolean;
   customPaywallHtml?: string;
   resource?: Resource;
+  errorMessages?: {
+    paymentRequired?: string;
+    invalidPayment?: string;
+    noMatchingRequirements?: string;
+    verificationFailed?: string;
+    settlementFailed?: string;
+  };
 };
 
 export interface ERC20TokenAmount {
@@ -38,7 +47,15 @@ export interface ERC20TokenAmount {
   };
 }
 
-export type Price = Money | ERC20TokenAmount;
+export interface SPLTokenAmount {
+  amount: string;
+  asset: {
+    address: string;
+    decimals: number;
+  };
+}
+
+export type Price = Money | ERC20TokenAmount | SPLTokenAmount;
 
 export interface RouteConfig {
   price: Price;
@@ -54,4 +71,4 @@ export interface RoutePattern {
   config: RouteConfig;
 }
 
-export type Wallet = SignerWallet | LocalAccount;
+export type Wallet = EvmSigner;
